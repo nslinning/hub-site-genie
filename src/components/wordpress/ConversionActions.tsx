@@ -4,33 +4,23 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { Code2, Wand2, Info } from "lucide-react";
+import { conversionSteps, simulateProcess } from "@/utils/wordpress/conversionUtils";
+import ConversionProgress from "./ConversionProgress";
 
 const ConversionActions = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [conversionProgress, setConversionProgress] = useState<string[]>([]);
 
-  const simulateProcess = async (steps: string[], setState: React.Dispatch<React.SetStateAction<boolean>>) => {
-    for (const step of steps) {
-      setConversionProgress(prev => [...prev, step]);
-      await new Promise(resolve => setTimeout(resolve, 1500));
-    }
-    setState(false);
-    setConversionProgress([]);
-  };
-
   const handleAnalyzeCode = async () => {
     setIsAnalyzing(true);
     setConversionProgress([]);
     try {
-      const analyzeSteps = [
-        "Scanning React components",
-        "Identifying WordPress compatibility",
-        "Mapping component structures",
-        "Generating conversion strategy"
-      ];
-      
-      await simulateProcess(analyzeSteps, setIsAnalyzing);
+      await simulateProcess(
+        conversionSteps.analyze, 
+        setConversionProgress, 
+        setIsAnalyzing
+      );
       
       toast.success("Kodeanalyse fullført", {
         description: "Optimale konverteringsmønstre er identifisert"
@@ -44,15 +34,11 @@ const ConversionActions = () => {
     setIsGenerating(true);
     setConversionProgress([]);
     try {
-      const generateSteps = [
-        "Preparing WordPress theme structure",
-        "Converting React components",
-        "Implementing WordPress hooks",
-        "Generating template files",
-        "Finalizing theme configuration"
-      ];
-      
-      await simulateProcess(generateSteps, setIsGenerating);
+      await simulateProcess(
+        conversionSteps.generate,
+        setConversionProgress,
+        setIsGenerating
+      );
       
       toast.success("WordPress-tema generert", {
         description: "Temaet er klart for testing og optimalisering"
@@ -105,18 +91,7 @@ const ConversionActions = () => {
         </div>
       </TooltipProvider>
 
-      {conversionProgress.length > 0 && (
-        <div className="mt-4 w-full">
-          <div className="bg-muted p-4 rounded-lg">
-            <h4 className="font-semibold mb-2">Konverteringsprosess:</h4>
-            <ul className="list-disc list-inside text-sm">
-              {conversionProgress.map((step, index) => (
-                <li key={index} className="text-muted-foreground">{step}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      )}
+      <ConversionProgress steps={conversionProgress} />
     </div>
   );
 };
