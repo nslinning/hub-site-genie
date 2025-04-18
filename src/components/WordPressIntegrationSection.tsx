@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import CodeAnalysisPanel from "./wordpress/CodeAnalysisPanel";
 import ThemeConfigPanel from "./wordpress/ThemeConfigPanel";
 import WordPressThemeIntegration from "./wordpress/WordPressThemeIntegration";
+import GitHubIntegrationPanel from "./wordpress/GitHubIntegration";
 
 const WordPressIntegrationSection = () => {
   return (
@@ -11,9 +12,12 @@ const WordPressIntegrationSection = () => {
         <CodeAnalysisPanel />
         <ThemeConfigPanel />
       </div>
-      <Card className="p-4">
-        <WordPressThemeIntegration />
-      </Card>
+      <div className="grid gap-6 md:grid-cols-2">
+        <GitHubIntegrationPanel />
+        <Card className="p-4">
+          <WordPressThemeIntegration />
+        </Card>
+      </div>
     </div>
   );
 };
