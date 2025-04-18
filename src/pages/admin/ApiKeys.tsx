@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -26,6 +25,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription
 } from "@/components/ui/dialog";
 import { 
   Select, 
@@ -190,6 +190,9 @@ const ApiKeys = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Legg til ny API-nøkkel</DialogTitle>
+            <DialogDescription>
+              Fyll inn informasjon om API-nøkkelen du vil legge til.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
