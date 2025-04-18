@@ -70,28 +70,28 @@ export class ApiClient {
   }
 }
 
-export const createQueryHook = <T>(
+export const createQueryHook = <TResponse, TError = Error>(
   client: ApiClient,
   path: string,
-  options?: Omit<UseQueryOptions<T>, "queryKey" | "queryFn">
+  options?: Omit<UseQueryOptions<TResponse, TError>, "queryKey" | "queryFn">
 ) => {
   // Return the useQuery hook directly
-  return () => useQuery({
+  return () => useQuery<TResponse, TError>({
     queryKey: [path],
-    queryFn: () => client.get<T>(path),
+    queryFn: () => client.get<TResponse>(path),
     ...options,
   });
 };
 
-export const createMutationHook = <T, V>(
+export const createMutationHook = <TResponse, TVariables = unknown, TError = Error>(
   client: ApiClient,
   path: string
 ) => {
   // Return the useMutation hook directly
-  return () => useMutation<T, Error, V>({
-    mutationFn: (variables: V) => client.post<T>(path, variables),
+  return () => useMutation<TResponse, TError, TVariables>({
+    mutationFn: (variables: TVariables) => client.post<TResponse>(path, variables),
     onError: (error) => {
-      toast.error(`Operation failed: ${error.message}`);
+      toast.error(`Operation failed: ${error instanceof Error ? error.message : String(error)}`);
     },
   });
 };

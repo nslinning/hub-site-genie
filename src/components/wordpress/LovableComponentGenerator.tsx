@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,7 +8,7 @@ import { Wand2 } from "lucide-react";
 import { DesignSpec } from "@/utils/wordpress/githubIntegration";
 import { toast } from "sonner";
 import { useApiKeys } from "@/hooks/useApiKeys";
-import { useLovableApi } from "@/utils/api/lovableApi";
+import { useLovableApi, ComponentGenerationResponse, ComponentGenerationRequest } from "@/utils/api/lovableApi";
 import { ProgressTracker, ProgressStep } from "@/components/common/ProgressTracker";
 
 interface LovableComponentGeneratorProps {
@@ -64,7 +63,7 @@ const LovableComponentGenerator = ({
     
     try {
       if (generateComponent) {
-        generateComponent({
+        const request: ComponentGenerationRequest = {
           name: componentName,
           description: componentDescription,
           designSpec: designSpec || { 
@@ -79,8 +78,10 @@ const LovableComponentGenerator = ({
               constraints: [] 
             }
           }
-        }, {
-          onSuccess: (data) => {
+        };
+
+        generateComponent(request, {
+          onSuccess: (data: ComponentGenerationResponse) => {
             setGeneratedCode(data.code);
             setCurrentStep("complete");
             toast.success("Komponent generert");

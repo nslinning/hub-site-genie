@@ -7,6 +7,41 @@ export interface LovableApiConfig {
   environment?: "development" | "production";
 }
 
+// Define response types
+export interface ComponentAnalysisResponse {
+  analysis: string;
+  suggestions: string[];
+  complexity: number;
+}
+
+export interface ComponentGenerationResponse {
+  code: string;
+  dependencies?: string[];
+}
+
+export interface WordPressConversionResponse {
+  phpCode: string;
+  cssCode: string;
+  jsCode?: string;
+}
+
+// Define request types
+export interface ComponentAnalysisRequest {
+  name: string;
+  code: string;
+}
+
+export interface ComponentGenerationRequest {
+  name: string;
+  description: string;
+  designSpec: DesignSpec;
+}
+
+export interface WordPressConversionRequest {
+  name: string;
+  code: string;
+}
+
 export class LovableApi {
   private client: ApiClient;
 
@@ -21,20 +56,16 @@ export class LovableApi {
     });
   }
 
-  async analyzeComponent(component: { name: string; code: string }) {
-    return this.client.post("/analyze/component", component);
+  async analyzeComponent(component: ComponentAnalysisRequest): Promise<ComponentAnalysisResponse> {
+    return this.client.post<ComponentAnalysisResponse>("/analyze/component", component);
   }
 
-  async generateComponent(request: {
-    name: string;
-    description: string;
-    designSpec: DesignSpec;
-  }) {
-    return this.client.post("/generate/component", request);
+  async generateComponent(request: ComponentGenerationRequest): Promise<ComponentGenerationResponse> {
+    return this.client.post<ComponentGenerationResponse>("/generate/component", request);
   }
 
-  async convertToWordPress(component: { name: string; code: string }) {
-    return this.client.post("/convert/wordpress", component);
+  async convertToWordPress(component: WordPressConversionRequest): Promise<WordPressConversionResponse> {
+    return this.client.post<WordPressConversionResponse>("/convert/wordpress", component);
   }
 
   // Make the client accessible for hooks
@@ -49,15 +80,15 @@ export const useLovableApi = (apiKey: string) => {
   const client = api.getClient();
   
   return {
-    useComponentAnalysis: createQueryHook(client, "/analyze/component", {
+    useComponentAnalysis: createQueryHook<ComponentAnalysisResponse>(client, "/analyze/component", {
       staleTime: 5 * 60 * 1000, // Cache for 5 minutes
       retry: 2,
     }),
-    useComponentGeneration: createMutationHook(
+    useComponentGeneration: createMutationHook<ComponentGenerationResponse, ComponentGenerationRequest>(
       client,
       "/generate/component"
     ),
-    useWordPressConversion: createMutationHook(
+    useWordPressConversion: createMutationHook<WordPressConversionResponse, WordPressConversionRequest>(
       client,
       "/convert/wordpress"
     ),
