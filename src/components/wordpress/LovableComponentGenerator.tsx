@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -20,6 +19,9 @@ import {
 import { toast } from "sonner";
 import { LovableIntegration, ComponentGenerationRequest } from "@/utils/wordpress/lovableIntegration";
 import { DesignSpec } from "@/utils/wordpress/githubIntegration";
+import { useApiKeys } from "@/hooks/useApiKeys";
+import { useLovableApi } from "@/utils/api/lovableApi";
+import { ProgressTracker, type ProgressStep } from "../common/ProgressTracker";
 
 interface LovableComponentGeneratorProps {
   designSpec?: DesignSpec;
@@ -30,6 +32,7 @@ const LovableComponentGenerator = ({
   designSpec,
   onComponentGenerated
 }: LovableComponentGeneratorProps) => {
+  const { apiKey, isLoading: isLoadingKey } = useApiKeys("lovable");
   const [componentName, setComponentName] = useState("");
   const [description, setDescription] = useState("");
   const [dependencies, setDependencies] = useState<string[]>([]);
@@ -39,8 +42,17 @@ const LovableComponentGenerator = ({
   const [isCopied, setIsCopied] = useState(false);
   const [generatedComponents, setGeneratedComponents] = useState<Array<{name: string; code: string}>>([]);
   const [selectedComponent, setSelectedComponent] = useState<string | null>(null);
+  const [currentStep, setCurrentStep] = useState<string>("input");
 
-  const lovable = new LovableIntegration();
+  const steps: ProgressStep[] = [
+    { id: "input", label: "Komponentdetaljer", status: "completed" },
+    { id: "analysis", label: "Analyserer", status: "pending" },
+    { id: "generation", label: "Genererer", status: "pending" },
+    { id: "review", label: "Gjennomgang", status: "pending" }
+  ];
+
+  const lovableApi = useLovableApi(apiKey || "");
+  const { mutateAsync: generateComponent } = lovableApi.useComponentGeneration();
 
   const handleAddDependency = () => {
     if (newDependency && !dependencies.includes(newDependency)) {
@@ -67,29 +79,32 @@ const LovableComponentGenerator = ({
   };
 
   const handleGenerateComponent = async () => {
-    if (!componentName || !description) return;
+    if (!componentName || !description || !apiKey) return;
     
     setIsGenerating(true);
+    setCurrentStep("analysis");
+    
     try {
-      const request: ComponentGenerationRequest = {
-        componentName,
+      const result = await generateComponent({
+        name: componentName,
         description,
         designSpec: designSpec || {
-          colorPalette: ["#8B5CF6", "#1E40AF", "#10B981", "#F59E0B", "#111827", "#F9FAFB"],
+          colorPalette: ["#8B5CF6", "#1E40AF", "#10B981"],
           typography: { headings: "Inter", body: "Inter" },
           layoutStructure: "standard",
           components: ["Hero", "Features"]
-        },
-        dependencies
-      };
+        }
+      });
+
+      setCurrentStep("generation");
       
-      const result = await lovable.generateComponent(request);
-      
-      if (result.success && result.data.code) {
-        setGeneratedCode(result.data.code);
+      if (result) {
+        setGeneratedCode(result.code);
+        const newComponent = { 
+          name: componentName, 
+          code: result.code 
+        };
         
-        // Add to generated components list
-        const newComponent = { name: componentName, code: result.data.code };
         setGeneratedComponents(prev => 
           prev.some(c => c.name === componentName) 
             ? prev.map(c => c.name === componentName ? newComponent : c)
@@ -100,11 +115,12 @@ const LovableComponentGenerator = ({
           onComponentGenerated(newComponent);
         }
         
+        setCurrentStep("review");
         toast.success(`${componentName} ble generert`);
       }
     } catch (error) {
-      console.error("Komponentgenerering feilet:", error);
       toast.error("Kunne ikke generere komponent");
+      console.error("Komponentgenerering feilet:", error);
     } finally {
       setIsGenerating(false);
     }
@@ -118,7 +134,6 @@ const LovableComponentGenerator = ({
     }
   };
 
-  // Common React component templates
   const componentTemplates = [
     {
       name: "HeroSection",
@@ -266,6 +281,11 @@ const LovableComponentGenerator = ({
           </div>
 
           <div>
+            <ProgressTracker
+              steps={steps}
+              currentStep={currentStep}
+              className="mb-4"
+            />
             <div className="border rounded mb-4">
               <div className="bg-muted px-3 py-2 font-medium">Genererte komponenter</div>
               <div className="p-1">
