@@ -67,16 +67,13 @@ const LovableComponentGenerator = ({
           name: componentName,
           description: componentDescription,
           designSpec: designSpec || { 
-            colors: [], 
-            typography: { 
-              fontFamily: "Inter", 
-              headings: [], 
-              bodyText: [] 
+            colorPalette: [],
+            typography: {
+              headings: "Inter",
+              body: "Inter"
             },
-            layout: { 
-              type: "responsive", 
-              constraints: [] 
-            }
+            layoutStructure: "standard",
+            components: []
           }
         };
 
