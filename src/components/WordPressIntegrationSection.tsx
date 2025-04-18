@@ -1,6 +1,5 @@
-
 import { 
-  Github as WordPressIcon, // Using Github icon as a substitute for WordPress
+  wordpress, 
   ShoppingCart, 
   Upload, 
   Settings, 
@@ -87,7 +86,7 @@ const WordPressIntegrationSection = () => {
           <Card className="bg-card border border-border hover:shadow-lg transition-shadow">
             <CardContent className="p-6">
               <div className="mb-4 p-3 bg-muted inline-block rounded-lg">
-                <WordPressIcon className="h-8 w-8 text-primary" />
+                <wordpress className="h-8 w-8 text-primary" />
               </div>
               <h3 className="text-xl font-semibold mb-3">Plugin-kompatibilitet</h3>
               <p className="text-muted-foreground">
