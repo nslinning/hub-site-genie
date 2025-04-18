@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@babel/parser": "^7.27.0",
+    "@babel/traverse": "^7.27.0",
     "@babel/types": "^7.27.0",
     "@hookform/resolvers": "^3.9.0",
     "@octokit/rest": "^20.0.2",

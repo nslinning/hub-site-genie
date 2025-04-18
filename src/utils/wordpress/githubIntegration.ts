@@ -58,8 +58,8 @@ export class GitHubIntegration {
           });
           return {
             path: file.path,
-            mode: "100644",
-            type: "blob",
+            mode: "100644" as const, // Fix: Use literal type instead of string
+            type: "blob" as const,  // Fix: Use literal type instead of string
             sha: blob.data.sha,
           };
         })
