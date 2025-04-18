@@ -1,6 +1,6 @@
 
 import { parse } from '@babel/parser';
-import * as traverse from '@babel/traverse';
+import traverse from '@babel/traverse';
 import * as t from '@babel/types';
 import { ComponentData } from './themeConverter';
 
@@ -27,8 +27,8 @@ export const analyzeReactCode = (code: string): AnalysisResult => {
       plugins: ['jsx', 'typescript']
     });
 
-    // Use the default import for traverse
-    (traverse.default || traverse)(ast, {
+    // Call traverse directly since it's imported as default
+    traverse(ast, {
       ImportDeclaration(path) {
         analysis.dependencies.push(path.node.source.value);
       },
