@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GitMerge, CheckCircle, AlertCircle, FileCheck } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { GitHubIntegration, DesignSpec } from "@/utils/wordpress/githubIntegration";
 import { AIIntegration, CodeCheckRequest } from "@/utils/wordpress/aiIntegration";
 
