@@ -49,15 +49,15 @@ export const useLovableApi = (apiKey: string) => {
   const client = api.getClient();
   
   return {
-    useComponentAnalysis: createQueryHook<any>(client, "/analyze/component", {
+    useComponentAnalysis: () => createQueryHook<any>(client, "/analyze/component", {
       staleTime: 5 * 60 * 1000, // Cache for 5 minutes
       retry: 2,
     }),
-    useComponentGeneration: createMutationHook<any, any>(
+    useComponentGeneration: () => createMutationHook<any, any>(
       client,
       "/generate/component"
     ),
-    useWordPressConversion: createMutationHook<any, any>(
+    useWordPressConversion: () => createMutationHook<any, any>(
       client,
       "/convert/wordpress"
     ),

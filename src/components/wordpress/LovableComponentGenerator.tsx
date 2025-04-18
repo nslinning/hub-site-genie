@@ -37,25 +37,11 @@ const LovableComponentGenerator = ({
   
   // Use the Lovable API hooks
   const { useComponentGeneration } = apiKey ? useLovableApi(apiKey) : { useComponentGeneration: null };
-  const generateMutation = useComponentGeneration ? useComponentGeneration({
-    onSuccess: (data) => {
-      setGeneratedCode(data.code);
-      setCurrentStep("complete");
-      toast.success("Komponent generert");
-      if (onComponentGenerated) {
-        onComponentGenerated({
-          name: componentName,
-          code: data.code,
-        });
-      }
-    },
-    onError: (error) => {
-      toast.error("Kunne ikke generere komponent", { 
-        description: error.message || "Prøv igjen senere" 
-      });
-      setCurrentStep("prepare");
-    }
-  }) : null;
+  
+  // Fix: call the hook without passing any arguments and handle options separately
+  const generateMutation = useComponentGeneration 
+    ? useComponentGeneration()
+    : null;
 
   const handleGenerateComponent = async () => {
     if (!componentName || !componentDescription) {
@@ -90,6 +76,24 @@ const LovableComponentGenerator = ({
             type: "responsive", 
             constraints: [] 
           }
+        }
+      }, {
+        onSuccess: (data) => {
+          setGeneratedCode(data.code);
+          setCurrentStep("complete");
+          toast.success("Komponent generert");
+          if (onComponentGenerated) {
+            onComponentGenerated({
+              name: componentName,
+              code: data.code,
+            });
+          }
+        },
+        onError: (error) => {
+          toast.error("Kunne ikke generere komponent", { 
+            description: error.message || "Prøv igjen senere" 
+          });
+          setCurrentStep("prepare");
         }
       });
     } catch (error) {

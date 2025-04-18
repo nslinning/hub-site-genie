@@ -1,6 +1,6 @@
 
 import { toast } from "sonner";
-import { useQuery, useMutation, UseQueryOptions } from "@tanstack/react-query";
+import { useQuery, useMutation, UseQueryOptions, UseMutationOptions } from "@tanstack/react-query";
 
 interface RetryConfig {
   maxRetries?: number;
@@ -75,6 +75,7 @@ export const createQueryHook = <T>(
   path: string,
   options?: Omit<UseQueryOptions<T>, "queryKey" | "queryFn">
 ) => {
+  // Return a function that, when called, returns the useQuery hook
   return () => useQuery({
     queryKey: [path],
     queryFn: () => client.get<T>(path),
@@ -86,10 +87,12 @@ export const createMutationHook = <T, V>(
   client: ApiClient,
   path: string
 ) => {
-  return () => useMutation({
+  // Return a function that, when called, returns the useMutation hook
+  return (options?: Partial<UseMutationOptions<T, Error, V>>) => useMutation({
     mutationFn: (variables: V) => client.post<T>(path, variables),
     onError: (error) => {
       toast.error(`Operation failed: ${error.message}`);
     },
+    ...options,
   });
 };
