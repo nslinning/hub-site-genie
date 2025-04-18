@@ -1,5 +1,5 @@
 
-import { ApiClient } from "./apiClient";
+import { ApiClient, createQueryHook, createMutationHook } from "./apiClient";
 import { DesignSpec } from "../wordpress/githubIntegration";
 
 export interface LovableApiConfig {
@@ -36,23 +36,29 @@ export class LovableApi {
   async convertToWordPress(component: { name: string; code: string }) {
     return this.client.post("/convert/wordpress", component);
   }
+
+  // Make the client accessible for hooks
+  getClient() {
+    return this.client;
+  }
 }
 
 // React hooks for Lovable API
 export const useLovableApi = (apiKey: string) => {
   const api = new LovableApi({ apiKey });
+  const client = api.getClient();
   
   return {
-    useComponentAnalysis: createQueryHook(api.client, "/analyze/component", {
+    useComponentAnalysis: createQueryHook<any>(client, "/analyze/component", {
       staleTime: 5 * 60 * 1000, // Cache for 5 minutes
       retry: 2,
     }),
-    useComponentGeneration: createMutationHook(
-      api.client,
+    useComponentGeneration: createMutationHook<any, any>(
+      client,
       "/generate/component"
     ),
-    useWordPressConversion: createMutationHook(
-      api.client,
+    useWordPressConversion: createMutationHook<any, any>(
+      client,
       "/convert/wordpress"
     ),
   };
