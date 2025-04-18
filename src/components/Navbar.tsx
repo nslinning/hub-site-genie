@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
@@ -18,6 +17,7 @@ const Navbar = () => {
           <a href="#features" className="font-medium hover:text-primary transition-colors">Features</a>
           <a href="#ai-integration" className="font-medium hover:text-primary transition-colors">AI Integration</a>
           <a href="#workflow" className="font-medium hover:text-primary transition-colors">Workflow</a>
+          <a href="#wordpress" className="font-medium hover:text-primary transition-colors">WordPress</a>
           <a href="#contact" className="font-medium hover:text-primary transition-colors">Contact</a>
         </div>
         
@@ -44,6 +44,7 @@ const Navbar = () => {
             <a href="#features" className="font-medium hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>Features</a>
             <a href="#ai-integration" className="font-medium hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>AI Integration</a>
             <a href="#workflow" className="font-medium hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>Workflow</a>
+            <a href="#wordpress" className="font-medium hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>WordPress</a>
             <a href="#contact" className="font-medium hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>Contact</a>
             <Button className="bg-primary hover:bg-primary/90 w-full">Get Started</Button>
           </div>

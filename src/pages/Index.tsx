@@ -4,6 +4,7 @@ import HeroSection from "@/components/HeroSection";
 import FeaturesSection from "@/components/FeaturesSection";
 import AIIntegrationSection from "@/components/AIIntegrationSection";
 import WorkflowSection from "@/components/WorkflowSection";
+import WordPressIntegrationSection from "@/components/WordPressIntegrationSection";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 
@@ -16,6 +17,7 @@ const Index = () => {
         <FeaturesSection />
         <AIIntegrationSection />
         <WorkflowSection />
+        <WordPressIntegrationSection />
         <ContactSection />
       </main>
       <Footer />
