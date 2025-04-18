@@ -1,6 +1,7 @@
 
 import { toast } from "sonner";
 import { DesignSpec } from "./githubIntegration";
+import { getApiKeys } from "../admin/storageService";
 
 export interface LovableConfig {
   apiKey?: string;
@@ -33,10 +34,31 @@ export class LovableIntegration {
     this.config = config;
   }
 
+  private getApiKey(): string | null {
+    // Først, sjekk om nøkkel er gitt i config
+    if (this.config.apiKey) {
+      return this.config.apiKey;
+    }
+    
+    // Hvis ikke, hent fra lagret API-nøkkel
+    const apiKeys = getApiKeys();
+    const lovableKey = apiKeys.find(
+      (key) => key.service === "lovable" && key.active
+    );
+    
+    return lovableKey ? lovableKey.key : null;
+  }
+
   async createDesignProject(request: DesignRequest): Promise<LovableResponse<{projectUrl: string}>> {
     try {
+      const apiKey = this.getApiKey();
+      if (!apiKey) {
+        throw new Error("Ingen aktiv Lovable API-nøkkel funnet");
+      }
+      
       // Dette er en forenklet implementasjon som må erstattes med faktisk API-kall til Lovable.dev
       console.log("Oppretter design-prosjekt i Lovable.dev:", request.title);
+      console.log("Bruker API-nøkkel:", apiKey.substring(0, 3) + "•••••••");
       
       // Simulerer responstid
       await new Promise(resolve => setTimeout(resolve, 2000));
@@ -64,7 +86,13 @@ export class LovableIntegration {
 
   async generateComponent(request: ComponentGenerationRequest): Promise<LovableResponse<{code: string}>> {
     try {
+      const apiKey = this.getApiKey();
+      if (!apiKey) {
+        throw new Error("Ingen aktiv Lovable API-nøkkel funnet");
+      }
+      
       console.log("Genererer komponent i Lovable.dev:", request.componentName);
+      console.log("Bruker API-nøkkel:", apiKey.substring(0, 3) + "•••••••");
       
       // Simulerer responstid
       await new Promise(resolve => setTimeout(resolve, 1500));
@@ -111,7 +139,13 @@ export default ${request.componentName};
 
   async getLivePreview(designSpec: DesignSpec): Promise<LovableResponse<{previewUrl: string}>> {
     try {
+      const apiKey = this.getApiKey();
+      if (!apiKey) {
+        throw new Error("Ingen aktiv Lovable API-nøkkel funnet");
+      }
+      
       console.log("Henter live forhåndsvisning fra Lovable.dev");
+      console.log("Bruker API-nøkkel:", apiKey.substring(0, 3) + "•••••••");
       
       // Simulerer responstid
       await new Promise(resolve => setTimeout(resolve, 1000));

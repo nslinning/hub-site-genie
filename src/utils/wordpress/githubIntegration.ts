@@ -1,11 +1,12 @@
 
 import { Octokit } from "@octokit/rest";
 import { toast } from "sonner";
+import { getApiKeys } from "../admin/storageService";
 
 interface GitHubConfig {
   owner: string;
   repo: string;
-  token: string;
+  token?: string;
 }
 
 export interface CommitOptions {
@@ -27,17 +28,52 @@ export interface DesignSpec {
 }
 
 export class GitHubIntegration {
-  private octokit: Octokit;
+  private octokit: Octokit | null = null;
   private config: GitHubConfig;
 
   constructor(config: GitHubConfig) {
     this.config = config;
-    this.octokit = new Octokit({ auth: config.token });
+    this.initializeOctokit();
+  }
+
+  private initializeOctokit() {
+    let token = this.config.token;
+    
+    // Hvis token ikke er gitt i config, prøv å hente fra lagrede API-nøkler
+    if (!token) {
+      const apiKeys = getApiKeys();
+      const githubKey = apiKeys.find(
+        (key) => key.service === "github" && key.active
+      );
+      
+      if (githubKey) {
+        token = githubKey.key;
+      }
+    }
+    
+    if (token) {
+      this.octokit = new Octokit({ auth: token });
+    } else {
+      console.error("GitHub token er ikke tilgjengelig");
+      this.octokit = null;
+    }
+  }
+
+  private ensureOctokit() {
+    if (!this.octokit) {
+      this.initializeOctokit();
+      
+      if (!this.octokit) {
+        throw new Error("GitHub token ikke tilgjengelig");
+      }
+    }
+    return this.octokit;
   }
 
   async createRepository(name: string, description: string) {
     try {
-      const response = await this.octokit.repos.createForAuthenticatedUser({
+      const octokit = this.ensureOctokit();
+      const response = await octokit.repos.createForAuthenticatedUser({
         name,
         description,
         auto_init: true,
@@ -52,7 +88,9 @@ export class GitHubIntegration {
 
   async commitThemeFiles(options: CommitOptions) {
     try {
-      const master = await this.octokit.git.getRef({
+      const octokit = this.ensureOctokit();
+      
+      const master = await octokit.git.getRef({
         owner: this.config.owner,
         repo: this.config.repo,
         ref: "heads/main",
@@ -60,7 +98,7 @@ export class GitHubIntegration {
 
       const files = await Promise.all(
         options.files.map(async (file) => {
-          const blob = await this.octokit.git.createBlob({
+          const blob = await octokit.git.createBlob({
             owner: this.config.owner,
             repo: this.config.repo,
             content: file.content,
@@ -75,14 +113,14 @@ export class GitHubIntegration {
         })
       );
 
-      const tree = await this.octokit.git.createTree({
+      const tree = await octokit.git.createTree({
         owner: this.config.owner,
         repo: this.config.repo,
         base_tree: master.data.object.sha,
         tree: files,
       });
 
-      const commit = await this.octokit.git.createCommit({
+      const commit = await octokit.git.createCommit({
         owner: this.config.owner,
         repo: this.config.repo,
         message: options.message,
@@ -90,7 +128,7 @@ export class GitHubIntegration {
         parents: [master.data.object.sha],
       });
 
-      await this.octokit.git.updateRef({
+      await octokit.git.updateRef({
         owner: this.config.owner,
         repo: this.config.repo,
         ref: "heads/main",
