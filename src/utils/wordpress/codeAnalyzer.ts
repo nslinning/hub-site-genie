@@ -42,8 +42,11 @@ export const analyzeReactCode = (code: string): AnalysisResult => {
           t.isArrayPattern(path.node.id) &&
           t.isCallExpression(path.node.init) &&
           t.isIdentifier(path.node.init.callee) &&
-          path.node.init.callee.name === 'useState'
+          path.node.init.callee.name === 'useState' &&
+          path.node.id.elements[0] &&
+          t.isIdentifier(path.node.id.elements[0])
         ) {
+          // Make sure the first element exists and is an Identifier before accessing .name
           analysis.stateVariables.push(path.node.id.elements[0].name);
         }
       }
