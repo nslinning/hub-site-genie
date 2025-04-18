@@ -16,6 +16,16 @@ export interface CommitOptions {
   }>;
 }
 
+export interface DesignSpec {
+  colorPalette: string[];
+  typography: {
+    headings: string;
+    body: string;
+  };
+  layoutStructure: string;
+  components: string[];
+}
+
 export class GitHubIntegration {
   private octokit: Octokit;
   private config: GitHubConfig;
@@ -32,10 +42,10 @@ export class GitHubIntegration {
         description,
         auto_init: true,
       });
-      toast.success("Repository created successfully");
+      toast.success("Repository opprettet");
       return response.data;
     } catch (error) {
-      toast.error("Failed to create repository");
+      toast.error("Kunne ikke opprette repository");
       throw error;
     }
   }
@@ -58,8 +68,8 @@ export class GitHubIntegration {
           });
           return {
             path: file.path,
-            mode: "100644" as const, // Fix: Use literal type instead of string
-            type: "blob" as const,  // Fix: Use literal type instead of string
+            mode: "100644" as const,
+            type: "blob" as const,
             sha: blob.data.sha,
           };
         })
@@ -87,9 +97,29 @@ export class GitHubIntegration {
         sha: commit.data.sha,
       });
 
-      toast.success("Theme files committed successfully");
+      toast.success("Tema-filer committed");
     } catch (error) {
-      toast.error("Failed to commit theme files");
+      toast.error("Kunne ikke committe tema-filer");
+      throw error;
+    }
+  }
+
+  async commitDesignSpecs(designSpec: DesignSpec) {
+    try {
+      const content = JSON.stringify(designSpec, null, 2);
+      await this.commitThemeFiles({
+        message: "Legg til design-spesifikasjoner",
+        files: [
+          {
+            path: "design/specs.json",
+            content: content,
+          },
+        ],
+      });
+      toast.success("Design-spesifikasjoner lagret");
+      return true;
+    } catch (error) {
+      toast.error("Kunne ikke lagre design-spesifikasjoner");
       throw error;
     }
   }
