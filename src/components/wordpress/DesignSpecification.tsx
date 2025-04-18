@@ -1,13 +1,14 @@
 
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Palette, Type, LayoutGrid, Eye } from "lucide-react";
 import { DesignSpec } from "@/utils/wordpress/githubIntegration";
 import { LovableIntegration } from "@/utils/wordpress/lovableIntegration";
+import ColorPaletteSection from "./design/ColorPaletteSection";
+import TypographySection from "./design/TypographySection";
+import LayoutSection from "./design/LayoutSection";
 
 const defaultColors = [
   "#8B5CF6", // Primær lilla
@@ -41,7 +42,6 @@ const DesignSpecification = () => {
     "Testimonials", 
     "Contact"
   ]);
-  const [newComponent, setNewComponent] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [previewUrl, setPreviewUrl] = useState("");
   
@@ -51,17 +51,6 @@ const DesignSpecification = () => {
     const newColors = [...colors];
     newColors[index] = value;
     setColors(newColors);
-  };
-
-  const handleAddComponent = () => {
-    if (newComponent && !components.includes(newComponent)) {
-      setComponents([...components, newComponent]);
-      setNewComponent("");
-    }
-  };
-
-  const handleRemoveComponent = (component: string) => {
-    setComponents(components.filter(c => c !== component));
   };
 
   const handleGeneratePreview = async () => {
@@ -111,135 +100,25 @@ const DesignSpecification = () => {
           </TabsList>
 
           <TabsContent value="colors" className="space-y-4">
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {colors.map((color, index) => (
-                <div key={index} className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <div 
-                      className="w-6 h-6 rounded-full" 
-                      style={{ backgroundColor: color }}
-                    />
-                    <Label>
-                      {index === 0 ? "Primær" : 
-                       index === 1 ? "Sekundær" :
-                       index === 2 ? "Aksent 1" :
-                       index === 3 ? "Aksent 2" :
-                       index === 4 ? "Tekst" : "Bakgrunn"}
-                    </Label>
-                  </div>
-                  <Input
-                    type="color"
-                    value={color}
-                    onChange={(e) => handleColorChange(index, e.target.value)}
-                    className="h-10 w-full"
-                  />
-                  <Input 
-                    value={color} 
-                    onChange={(e) => handleColorChange(index, e.target.value)}
-                    className="h-8 text-xs"
-                  />
-                </div>
-              ))}
-            </div>
+            <ColorPaletteSection colors={colors} onColorChange={handleColorChange} />
           </TabsContent>
 
           <TabsContent value="typography" className="space-y-4">
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="headings-font">Overskrifter</Label>
-                <select
-                  id="headings-font"
-                  value={typography.headings}
-                  onChange={(e) => setTypography({...typography, headings: e.target.value})}
-                  className="w-full mt-1 h-10 px-3 rounded-md border border-input bg-background"
-                >
-                  <option value="Inter">Inter</option>
-                  <option value="Roboto">Roboto</option>
-                  <option value="Open Sans">Open Sans</option>
-                  <option value="Montserrat">Montserrat</option>
-                  <option value="Playfair Display">Playfair Display</option>
-                </select>
-                <div className="mt-2 p-3 border rounded">
-                  <h2 style={{fontFamily: typography.headings}} className="text-2xl">
-                    Overskrift eksempel
-                  </h2>
-                  <h3 style={{fontFamily: typography.headings}} className="text-xl mt-2">
-                    Mindre overskrift
-                  </h3>
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="body-font">Brødtekst</Label>
-                <select
-                  id="body-font"
-                  value={typography.body}
-                  onChange={(e) => setTypography({...typography, body: e.target.value})}
-                  className="w-full mt-1 h-10 px-3 rounded-md border border-input bg-background"
-                >
-                  <option value="Inter">Inter</option>
-                  <option value="Roboto">Roboto</option>
-                  <option value="Open Sans">Open Sans</option>
-                  <option value="Lato">Lato</option>
-                  <option value="Source Sans Pro">Source Sans Pro</option>
-                </select>
-                <div className="mt-2 p-3 border rounded">
-                  <p style={{fontFamily: typography.body}} className="text-base">
-                    Dette er et eksempel på brødtekst som vil bli brukt på nettstedet.
-                    Det er viktig at denne teksten er lett å lese.
-                  </p>
-                </div>
-              </div>
-            </div>
+            <TypographySection 
+              typography={typography} 
+              onTypographyChange={setTypography}
+            />
           </TabsContent>
 
           <TabsContent value="layout" className="space-y-4">
-            <div className="space-y-4">
-              <Label>Layout-struktur</Label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {designLayouts.map((designLayout) => (
-                  <div 
-                    key={designLayout.id}
-                    className={`border rounded-md p-3 cursor-pointer ${layout === designLayout.id ? 'border-primary bg-primary/10' : ''}`}
-                    onClick={() => setLayout(designLayout.id)}
-                  >
-                    <div className="text-center font-medium mb-2">{designLayout.name}</div>
-                    <div className="h-24 bg-muted rounded flex items-center justify-center">
-                      <span className="text-xs text-muted-foreground">
-                        {designLayout.name} layout
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-6 space-y-3">
-                <Label>Komponenter</Label>
-                <div className="flex flex-wrap gap-2">
-                  {components.map((component) => (
-                    <div key={component} className="flex items-center gap-1 bg-secondary/20 px-3 py-1 rounded">
-                      <span>{component}</span>
-                      <button 
-                        onClick={() => handleRemoveComponent(component)}
-                        className="text-muted-foreground hover:text-destructive ml-1"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                </div>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Ny komponent..."
-                    value={newComponent}
-                    onChange={(e) => setNewComponent(e.target.value)}
-                  />
-                  <Button onClick={handleAddComponent} type="button" variant="outline">
-                    Legg til
-                  </Button>
-                </div>
-              </div>
-            </div>
+            <LayoutSection
+              layout={layout}
+              components={components}
+              designLayouts={designLayouts}
+              onLayoutChange={setLayout}
+              onAddComponent={(component) => setComponents([...components, component])}
+              onRemoveComponent={(component) => setComponents(components.filter(c => c !== component))}
+            />
           </TabsContent>
         </Tabs>
 
