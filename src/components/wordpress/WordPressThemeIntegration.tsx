@@ -1,6 +1,6 @@
-
 import { Code2, FileJson, PackageSearch, Layers, LayoutTemplate, FileCode2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import ConversionActions from "./ConversionActions";
 
 interface IntegrationStep {
   icon: React.ReactNode;
@@ -67,6 +67,7 @@ const WordPressThemeIntegration = () => {
             </Card>
           ))}
         </div>
+        <ConversionActions />
       </div>
     </div>
   );
