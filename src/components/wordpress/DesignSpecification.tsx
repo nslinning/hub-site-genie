@@ -1,8 +1,8 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Label } from "@/components/ui/label";
 import { Palette, Type, LayoutGrid, Eye } from "lucide-react";
 import { DesignSpec } from "@/utils/wordpress/githubIntegration";
 import { LovableIntegration } from "@/utils/wordpress/lovableIntegration";

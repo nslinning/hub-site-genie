@@ -1,4 +1,4 @@
-
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,7 +20,7 @@ const LayoutSection = ({
   onAddComponent,
   onRemoveComponent,
 }: LayoutSectionProps) => {
-  const [newComponent, setNewComponent] = React.useState("");
+  const [newComponent, setNewComponent] = useState("");
 
   const handleAddComponent = () => {
     if (newComponent && !components.includes(newComponent)) {
