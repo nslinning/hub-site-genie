@@ -17,11 +17,11 @@ export const conversionSteps = {
 
 export const simulateProcess = async (
   steps: string[], 
-  setProgress: (steps: string[]) => void,
+  setProgress: React.Dispatch<React.SetStateAction<string[]>>,
   setState: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
   for (const step of steps) {
-    setProgress(prev => [...prev, step]);
+    setProgress(prevSteps => [...prevSteps, step]);
     await new Promise(resolve => setTimeout(resolve, 1500));
   }
   setState(false);
