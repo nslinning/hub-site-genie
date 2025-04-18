@@ -36,12 +36,13 @@ const LovableComponentGenerator = ({
   ];
   
   // Use the Lovable API hooks
-  const { useComponentGeneration } = apiKey ? useLovableApi(apiKey) : { useComponentGeneration: null };
+  const lovableApi = apiKey ? useLovableApi(apiKey) : null;
   
-  // Fix: call the hook without passing any arguments and handle options separately
-  const generateMutation = useComponentGeneration 
-    ? useComponentGeneration()
-    : null;
+  // Correctly invoke the useComponentGeneration hook to get the mutation
+  const { mutate: generateComponent, isPending } = lovableApi?.useComponentGeneration() || { 
+    mutate: null, 
+    isPending: false 
+  };
 
   const handleGenerateComponent = async () => {
     if (!componentName || !componentDescription) {
@@ -62,40 +63,42 @@ const LovableComponentGenerator = ({
     setTimeout(() => setCurrentStep("generate"), 1500);
     
     try {
-      generateMutation?.mutate({
-        name: componentName,
-        description: componentDescription,
-        designSpec: designSpec || { 
-          colors: [], 
-          typography: { 
-            fontFamily: "Inter", 
-            headings: [], 
-            bodyText: [] 
+      if (generateComponent) {
+        generateComponent({
+          name: componentName,
+          description: componentDescription,
+          designSpec: designSpec || { 
+            colors: [], 
+            typography: { 
+              fontFamily: "Inter", 
+              headings: [], 
+              bodyText: [] 
+            },
+            layout: { 
+              type: "responsive", 
+              constraints: [] 
+            }
+          }
+        }, {
+          onSuccess: (data) => {
+            setGeneratedCode(data.code);
+            setCurrentStep("complete");
+            toast.success("Komponent generert");
+            if (onComponentGenerated) {
+              onComponentGenerated({
+                name: componentName,
+                code: data.code,
+              });
+            }
           },
-          layout: { 
-            type: "responsive", 
-            constraints: [] 
-          }
-        }
-      }, {
-        onSuccess: (data) => {
-          setGeneratedCode(data.code);
-          setCurrentStep("complete");
-          toast.success("Komponent generert");
-          if (onComponentGenerated) {
-            onComponentGenerated({
-              name: componentName,
-              code: data.code,
+          onError: (error) => {
+            toast.error("Kunne ikke generere komponent", { 
+              description: error.message || "Prøv igjen senere" 
             });
+            setCurrentStep("prepare");
           }
-        },
-        onError: (error) => {
-          toast.error("Kunne ikke generere komponent", { 
-            description: error.message || "Prøv igjen senere" 
-          });
-          setCurrentStep("prepare");
-        }
-      });
+        });
+      }
     } catch (error) {
       console.error("Generation error:", error);
       toast.error("Kunne ikke generere komponent");
@@ -170,9 +173,9 @@ const LovableComponentGenerator = ({
         </Button>
         <Button 
           onClick={handleGenerateComponent}
-          disabled={!componentName || !componentDescription || !apiKey || generateMutation?.isPending}
+          disabled={!componentName || !componentDescription || !apiKey || isPending}
         >
-          {generateMutation?.isPending ? "Genererer..." : "Generer komponent"}
+          {isPending ? "Genererer..." : "Generer komponent"}
         </Button>
       </CardFooter>
     </Card>
