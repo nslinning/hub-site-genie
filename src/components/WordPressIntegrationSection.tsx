@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import WordPressFeatures from "./wordpress/WordPressFeatures";
+import WordPressThemeIntegration from "./wordpress/WordPressThemeIntegration";
 
 const WordPressIntegrationSection = () => {
   return (
@@ -16,6 +17,7 @@ const WordPressIntegrationSection = () => {
         </div>
 
         <WordPressFeatures />
+        <WordPressThemeIntegration />
 
         <div className="mt-12 text-center">
           <Button className="bg-primary hover:bg-primary/90 button-glow text-lg py-6 px-8">
